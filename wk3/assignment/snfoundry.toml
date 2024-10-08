@@ -1,0 +1,14 @@
+# Visit https://foundry-rs.github.io/starknet-foundry/appendix/snfoundry-toml.html for more information
+
+# [sncast.myprofile1]                                    # Define a profile name
+# url="https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/8iVs1V9YXQZIUMCPP_IV8_vzUIQtVrcW"                         
+# Url of the RPC provider
+# accounts_file = "../account-file"                      # Path to the file with the account data
+# account="/home/mazi/Desktop/cds/w3b/gida/snBaseCamp/wk4/starkli/oz"
+
+# Account from `accounts_file` or default account file that will be used for the transactions
+keystore="/home/mazi/Desktop/cds/w3b/gida/snBaseCamp/wk4/starkli/signer"
+                                # Path to the keystore file
+# wait_params = { timeout = 500, retry_interval = 10 }   # Wait for submitted transaction parameters
+# block_explorer = "https://sepolia.starkscan.co/"                           
+# Block explorer service used to display links to transaction details
