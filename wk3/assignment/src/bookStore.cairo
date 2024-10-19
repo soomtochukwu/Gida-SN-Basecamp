@@ -142,6 +142,8 @@ pub mod Gida_Book_Store {
             language: felt252,
             genre: felt252,
         ) {
+            assert(get_caller_address() == self.admin.read(), 'ADMIN(s) ONLY');
+
             let book = Book {
                 id: self.book_count.read(),
                 title: title,
@@ -161,17 +163,11 @@ pub mod Gida_Book_Store {
         }
 
         fn remove_book(ref self: ContractState, book_id: felt252) {
+            assert(get_caller_address() == self.admin.read(), 'ADMIN(s) ONLY');
             let mut book: Book = self.Books.read(book_id);
             book.removed = true;
             self.Books.write(book_id, book);
             self.emit(Book_removed { book_id: book.id, title: book.title })
-        }
-
-        fn borrow_book(ref self: ContractState, book_id: felt252) {
-            let caller_address = get_caller_address();
-            let book: Book = self.Books.read(book_id);
-            self.borrowed_books.write(caller_address, book_id);
-            self.emit(Borrow { buyer: get_caller_address(), title: book.title, book_id })
         }
 
         fn order_book(ref self: ContractState, book_id: felt252) {
@@ -193,6 +189,14 @@ pub mod Gida_Book_Store {
 
             self.emit(Borrow { buyer: get_caller_address(), title: book.title, book_id })
         }
+
+        fn borrow_book(ref self: ContractState, book_id: felt252) {
+            let caller_address = get_caller_address();
+            let book: Book = self.Books.read(book_id);
+            self.borrowed_books.write(caller_address, book_id);
+            self.emit(Borrow { buyer: get_caller_address(), title: book.title, book_id })
+        }
+
 
         //
 
