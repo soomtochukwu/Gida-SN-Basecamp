@@ -65,6 +65,7 @@ pub trait IGidaBookStore<TContractState> {
 
 #[starknet::contract]
 pub mod Gida_Book_Store {
+    use starknet::event::EventEmitter;
     use super::{IERC20Dispatcher, IERC20DispatcherTrait};
     use core::starknet::{
         ContractAddress, get_caller_address,
@@ -82,6 +83,42 @@ pub mod Gida_Book_Store {
         orders: Map<ContractAddress, felt252>, // mapping(address => book_id)
         book_count: felt252,
         admin: ContractAddress,
+    }
+
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Book_added: Book_added,
+        Book_removed: Book_removed,
+        Order: Order,
+        Borrow: Borrow
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Book_added {
+        book_id: felt252,
+        title: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Book_removed {
+        book_id: felt252,
+        title: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Order {
+        buyer: ContractAddress,
+        title: felt252,
+        book_id: felt252,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Borrow {
+        buyer: ContractAddress,
+        title: felt252,
+        book_id: felt252,
     }
 
 
@@ -119,19 +156,22 @@ pub mod Gida_Book_Store {
                 removed: false
             };
             self.Books.write(self.book_count.read(), book);
-
             self.book_count.write(self.book_count.read() + 1);
+            self.emit(Book_added { book_id: book.id, title })
         }
 
         fn remove_book(ref self: ContractState, book_id: felt252) {
             let mut book: Book = self.Books.read(book_id);
             book.removed = true;
             self.Books.write(book_id, book);
+            self.emit(Book_removed { book_id: book.id, title: book.title })
         }
 
         fn borrow_book(ref self: ContractState, book_id: felt252) {
             let caller_address = get_caller_address();
+            let book: Book = self.Books.read(book_id);
             self.borrowed_books.write(caller_address, book_id);
+            self.emit(Borrow { buyer: get_caller_address(), title: book.title, book_id })
         }
 
         fn order_book(ref self: ContractState, book_id: felt252) {
@@ -140,6 +180,7 @@ pub mod Gida_Book_Store {
                     .try_into()
                     .unwrap()
             };
+            let book: Book = self.Books.read(book_id);
 
             erc20_dispatcher
                 .transfer(
@@ -149,6 +190,8 @@ pub mod Gida_Book_Store {
                     self.Books.read(book_id).price
                 );
             self.orders.write(get_caller_address(), book_id);
+
+            self.emit(Borrow { buyer: get_caller_address(), title: book.title, book_id })
         }
 
         //
