@@ -7,8 +7,11 @@
 // borrow book
 
 // READ FUNCTIONS
-// get total number of books
 // get book
+// get total number of books
+///
+// get customer (ppl who ordered book(s))
+// get reader(s) (ppl who borrowed book(s))
 // sort by author
 // sort by publisher
 use core::starknet::ContractAddress;
